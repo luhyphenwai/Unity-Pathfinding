@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Node
 {
+    public GameObject nodeObject;
     public bool walkable;
     public Vector2 position;
     public Vector2 gridCoords;
@@ -23,6 +24,14 @@ public class Node
     public float fCost{
         get {
             return gCost + hCost + movementCost;
+        }
+    }
+
+    public void updateNodeObject(){
+        if (walkable){
+            nodeObject.GetComponent<SpriteRenderer>().color = Color.white;
+        }   else {
+            nodeObject.GetComponent<SpriteRenderer>().color = Color.black;
         }
     }
 

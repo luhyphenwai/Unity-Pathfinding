@@ -9,22 +9,27 @@ public class AStarPathfinder : MonoBehaviour
     public Node[] nodes;
     public Vector2 startingPosition;
     public Vector2 targetPosition;
-
+    public Node[] finalPath;
 
     private void Start() {
         grid = GameObject.Find("Pathfinding Grid").GetComponent<PathfindingGrid>();
-        List<Node> nodeList = new List<Node>();
-        for (int i = 0; i < grid.nodes.Length; i++){
-            Node node = new Node(grid.nodes[i].walkable, grid.nodes[i].position);
-            node.SetGridCoords(grid.nodes[i].gridCoords);
-            nodeList.Add(node);
-        }
-        nodes = nodeList.ToArray();
+        transform.localScale = new Vector2(grid.gridSize, grid.gridSize);
+        transform.position = grid.WorldPointToNode(transform.position).position;
     }
     private void Update() {
         startingPosition = transform.position;
     }
     public Node[] FindPath(Node startingNode, Node targetNode){
+        // Reload list of nodes
+        List<Node> nodeList = new List<Node>();
+        for (int i = 0; i < grid.nodes.Length; i++){
+            Node node = new Node(grid.nodes[i].walkable, grid.nodes[i].position);
+            node.SetGridCoords(grid.nodes[i].gridCoords);
+            node.nodeObject = grid.nodes[i].nodeObject;
+            nodeList.Add(node);
+        }
+        nodes = nodeList.ToArray();
+
         // Initialize lists
         List<Node> openNodes = new List<Node>();
         List<Node> closedNodes = new List<Node>();
@@ -101,28 +106,12 @@ public class AStarPathfinder : MonoBehaviour
         }
 
         // Return completed path
-        path.Reverse();;
+        path.Reverse();
+        finalPath = path.ToArray();
         return path.ToArray();
     }
 
-    // Convert world point into node
-    public Node WorldPointToNode(Vector3 position){ 
-        Node closestNode = nodes[0];
-        float closestNodeDistance = Vector2.Distance(position, nodes[0].position);
-        for (int i = 0; i < nodes.Length; i ++){
-            if (Vector2.Distance(position, nodes[i].position) < closestNodeDistance){
-                closestNode = nodes[i];
-                closestNodeDistance = Vector2.Distance(position, nodes[i].position);
-            }
-        }
-        return closestNode;
-    }
+    
 
-    // Drawing point on mouse
-    private void OnDrawGizmos() {
-        Gizmos.color = Color.blue;
-        if (Application.isPlaying){
-            Gizmos.DrawSphere(WorldPointToNode(Camera.main.ScreenToWorldPoint(Input.mousePosition)).position, 0.3f);
-        }
-    }
+    
 }

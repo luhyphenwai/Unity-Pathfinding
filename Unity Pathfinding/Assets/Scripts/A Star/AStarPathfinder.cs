@@ -12,14 +12,14 @@ public class AStarPathfinder : MonoBehaviour
     public Node[] finalPath;
 
     private void Start() {
-        grid = GameObject.Find("Pathfinding Grid").GetComponent<PathfindingGrid>();
-        transform.localScale = new Vector2(grid.gridSize, grid.gridSize);
+        grid = GameObject.Find("Grid").GetComponent<PathfindingGrid>();
+        transform.localScale = new Vector2(grid.nodeSize, grid.nodeSize);
         transform.position = grid.WorldPointToNode(transform.position).position;
     }
     private void Update() {
         startingPosition = transform.position;
     }
-    public Node[] FindPath(Node startingNode, Node targetNode){
+    public IEnumerator FindPath(Node startingNode, Node targetNode){
         // Reload list of nodes
         List<Node> nodeList = new List<Node>();
         for (int i = 0; i < grid.nodes.Length; i++){
@@ -30,6 +30,8 @@ public class AStarPathfinder : MonoBehaviour
         }
         nodes = nodeList.ToArray();
 
+        nodes = grid.nodes;
+
         // Initialize lists
         List<Node> openNodes = new List<Node>();
         List<Node> closedNodes = new List<Node>();
@@ -39,7 +41,7 @@ public class AStarPathfinder : MonoBehaviour
         current.gCost = 0;
 
         // Loop while not at target node
-        while (openNodes.Count > 0){
+        while (openNodes.Count > 0 ){
             current = openNodes[0];
             for (int i = 0; i < openNodes.Count; i++){
                 if (openNodes[i].fCost <= current.fCost){
@@ -52,9 +54,11 @@ public class AStarPathfinder : MonoBehaviour
             // Move current node to closed nodes
             openNodes.Remove(current);
             closedNodes.Add(current);
+            current.nodeObject.GetComponent<SpriteRenderer>().color = Color.yellow;
 
             // Check for target node
             if (current == targetNode){
+                print("Bruh");
                 break;
             }
 
@@ -86,15 +90,18 @@ public class AStarPathfinder : MonoBehaviour
                     neighbour.parent = current;
                     if (!openNodes.Contains(neighbour)){
                         openNodes.Add(neighbour);
+                        neighbour.nodeObject.GetComponent<SpriteRenderer>().color = Color.blue;
                     }
                 }
             } 
+            yield return new WaitForEndOfFrame();
         }
 
         // Retrace path back
         List<Node> path = new List<Node>();
         while (current != startingNode){
             path.Add(current);
+            current.nodeObject.GetComponent<SpriteRenderer>().color = Color.red;
             current = current.parent;
         }
 
@@ -108,7 +115,6 @@ public class AStarPathfinder : MonoBehaviour
         // Return completed path
         path.Reverse();
         finalPath = path.ToArray();
-        return path.ToArray();
     }
 
     

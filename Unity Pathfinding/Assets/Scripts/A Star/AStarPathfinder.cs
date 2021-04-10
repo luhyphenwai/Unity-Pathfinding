@@ -19,13 +19,14 @@ public class AStarPathfinder : MonoBehaviour
     private void Update() {
         startingPosition = transform.position;
     }
-    public IEnumerator FindPath(Node startingNode, Node targetNode){
+    public IEnumerator FindPath(Node startingNode, Node targetNode, float speed){
         // Reload list of nodes
         List<Node> nodeList = new List<Node>();
         for (int i = 0; i < grid.nodes.Length; i++){
             Node node = new Node(grid.nodes[i].walkable, grid.nodes[i].position);
             node.SetGridCoords(grid.nodes[i].gridCoords);
             node.nodeObject = grid.nodes[i].nodeObject;
+            node.updateNodeObject();
             nodeList.Add(node);
         }
         nodes = nodeList.ToArray();
@@ -58,7 +59,6 @@ public class AStarPathfinder : MonoBehaviour
 
             // Check for target node
             if (current == targetNode){
-                print("Bruh");
                 break;
             }
 
@@ -68,7 +68,10 @@ public class AStarPathfinder : MonoBehaviour
                 Node node = nodes[i];
                 if (Mathf.Abs(node.gridCoords.x - current.gridCoords.x) <= 1){
                     if (Mathf.Abs(node.gridCoords.y - current.gridCoords.y) <= 1){
-                        neighbourNodes.Add(node);
+                        // Do not include diagonal nodes
+                        if (node.gridCoords.x == current.gridCoords.x || node.gridCoords.y == current.gridCoords.y){
+                            neighbourNodes.Add(node);
+                        }   
                     }
                 }
             }
@@ -94,7 +97,7 @@ public class AStarPathfinder : MonoBehaviour
                     }
                 }
             } 
-            yield return new WaitForEndOfFrame();
+            yield return new WaitForSecondsRealtime(speed);
         }
 
         // Retrace path back

@@ -47,3 +47,6 @@ TagManager:
   - name: Things
     uniqueID: 3839415807
     locked: 0
+  - name: UI
+    uniqueID: 3932946901
+    locked: 0

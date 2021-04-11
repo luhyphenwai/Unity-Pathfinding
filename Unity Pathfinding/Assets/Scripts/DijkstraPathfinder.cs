@@ -1,12 +1,12 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AStarPathfinder : MonoBehaviour
+public class DijkstraPathfinder : MonoBehaviour
 {
     [Header("References")]
     public PathfindingGrid grid;
-    public Node[] nodes;
+    public List<Node> nodes;
     public Vector2 startingPosition;
     public Vector2 targetPosition;
     public Node[] finalPath;
@@ -20,41 +20,39 @@ public class AStarPathfinder : MonoBehaviour
         startingPosition = transform.position;
     }
     public IEnumerator FindPath(Node startingNode, Node targetNode, float speed){
-        // Reload list of nodes
-        List<Node> nodeList = new List<Node>();
-        for (int i = 0; i < grid.nodes.Length; i++){
-            Node node = new Node(grid.nodes[i].walkable, grid.nodes[i].position);
-            node.SetGridCoords(grid.nodes[i].gridCoords);
-            node.nodeObject = grid.nodes[i].nodeObject;
-            node.updateNodeObject();
-            nodeList.Add(node);
-        }
-        nodes = nodeList.ToArray();
-
-        nodes = grid.nodes;
-
+        
         // Initialize lists
-        List<Node> openNodes = new List<Node>();
-        List<Node> closedNodes = new List<Node>();
-        openNodes.Add(startingNode);
+        nodes = new List<Node>();
+        for(int i = 0; i< grid.nodes.Length; i++){
+            nodes.Add(grid.nodes[i]);
+        }
 
-        Node current = openNodes[0];
+        for(int i = 0; i < nodes.Count; i++){
+            nodes[i].updateNodeObject();
+        }
+
+        // Reset nodes
+        for (int i = 0; i < nodes.Count; i++){
+            nodes[i].hCost = 0;
+            nodes[i].gCost = 999999;
+            nodes[i].parent = null;
+        }
+
+
+        Node current = startingNode;
         current.gCost = 0;
 
         // Loop while not at target node
-        while (openNodes.Count > 0 ){
-            current = openNodes[0];
-            for (int i = 0; i < openNodes.Count; i++){
-                if (openNodes[i].fCost <= current.fCost){
-                    if (openNodes[i].hCost < current.hCost){
-                        current = openNodes[i];
-                    }
+        while (nodes.Count > 0 ){
+            current = nodes[0];
+            for (int i = 0; i < nodes.Count; i++){
+                if (nodes[i].gCost < current.gCost){
+                    current = nodes[i];
                 }
             }
 
             // Move current node to closed nodes
-            openNodes.Remove(current);
-            closedNodes.Add(current);
+            nodes.Remove(current);
             current.nodeObject.GetComponent<SpriteRenderer>().color = Color.yellow;
 
             // Check for target node
@@ -64,7 +62,7 @@ public class AStarPathfinder : MonoBehaviour
 
             // Find neighbour nodes
             List<Node> neighbourNodes = new List<Node>();
-            for (int i = 0; i < nodes.Length; i++){
+            for (int i = 0; i < nodes.Count; i++){
                 Node node = nodes[i];
                 if (Mathf.Abs(node.gridCoords.x - current.gridCoords.x) <= 1){
                     if (Mathf.Abs(node.gridCoords.y - current.gridCoords.y) <= 1){
@@ -79,25 +77,20 @@ public class AStarPathfinder : MonoBehaviour
             // Check neighbours
             foreach (Node neighbour in neighbourNodes){
                 // Check if neighbour is viable
-                if (!neighbour.walkable || closedNodes.Contains(neighbour)){
+                if (!neighbour.walkable || !nodes.Contains(neighbour)){
                     continue;
                 }
-                // H cost
-                float h = Vector2.Distance(neighbour.position, targetNode.position);
                 // G cost
                 float g = current.gCost + Vector2.Distance(neighbour.position, current.position);
+
                 // Change neighbour node settings 
-                if (g < neighbour.gCost || !openNodes.Contains(neighbour)){
-                    neighbour.hCost = h;
+                if (g < neighbour.gCost || neighbour.gCost == 0){
                     neighbour.gCost = g;
                     neighbour.parent = current;
-                    if (!openNodes.Contains(neighbour)){
-                        openNodes.Add(neighbour);
-                        neighbour.nodeObject.GetComponent<SpriteRenderer>().color = Color.blue;
-                    }
+                    neighbour.nodeObject.GetComponent<SpriteRenderer>().color = Color.blue;
                 }
             } 
-            yield return new WaitForSecondsRealtime(speed);
+            yield return new WaitForSeconds(speed);
         }
 
         // Retrace path back
@@ -109,7 +102,7 @@ public class AStarPathfinder : MonoBehaviour
         }
 
         // Reset nodes
-        for (int i = 0; i < nodes.Length; i++){
+        for (int i = 0; i < nodes.Count; i++){
             nodes[i].hCost = 0;
             nodes[i].gCost = 0;
             nodes[i].parent = null;
@@ -119,8 +112,4 @@ public class AStarPathfinder : MonoBehaviour
         path.Reverse();
         finalPath = path.ToArray();
     }
-
-    
-
-    
 }

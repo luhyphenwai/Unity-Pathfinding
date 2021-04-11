@@ -20,26 +20,24 @@ public class PathfindingGrid : MonoBehaviour
     public float nodeSize;
     public float wallDistance;
     public GameObject nodeObject;
+    public bool mazeAnimations;
     private void Awake() {
-        GenerateGrid(gridSize, nodeSize);
+        GenerateGrid();
         pi = GameObject.Find("Interface").GetComponent<PathfinderInterface>();
     }
 
     // Only runs in editor and runs every time script is edited
     private void Update() {
-        if (!Application.isPlaying){
-            GenerateGrid(gridSize, nodeSize);
-        }
     }
 
     // Generate grid nodes
-    void GenerateGrid(float size, float distance){
+    public void GenerateGrid(){
         List<Node> nodeList = new List<Node>();
         // Set grid size
         float gridWidth = gridSize * nodeSize;
         
         // Clear node objects
-        if (Application.isPlaying){
+        if (nodes != null){
             for (int i = 0; i < nodeObjects.Count; i++){
                 Destroy(nodeObjects[i]);
             }
@@ -79,31 +77,14 @@ public class PathfindingGrid : MonoBehaviour
         }
 
         // References
-        List<Node> openNodes = new List<Node>();
+        bool stillOpenNodes = true;
         List<Node> closedNodes = new List<Node>();
 
         Node current = nodes[0];
-        openNodes.Add(current);
         pi.pathfinderObject.transform.position = current.position;
 
-        // Find the neighbour nodes
-        for (int i = 0; i < nodes.Length; i++){
-            Node node = nodes[i];
-            if (Mathf.Abs(current.gridCoords.x - node.gridCoords.x) == 2 || Mathf.Abs(current.gridCoords.y - node.gridCoords.y) == 2){
-                // Do not include diagonal nodes
-                if (node.gridCoords.x == current.gridCoords.x || node.gridCoords.y == current.gridCoords.y){
-                    // Do not add already added nodes
-                    if (!openNodes.Contains(node)){
-                        openNodes.Add(node);
-                    }
-                }   
-                
-            }
-        }
         
-        while (openNodes.Count > 0) {
-            
-            openNodes.Remove(current);
+        while (stillOpenNodes) {
             closedNodes.Add(current);
             current.walkable = true;
             current.updateNodeObject();
@@ -121,9 +102,7 @@ public class PathfindingGrid : MonoBehaviour
                             // Do not add already added nodes
                             if (!closedNodes.Contains(node)){
                                 neighbourNodes.Add(node);
-                            }
-                            if (!openNodes.Contains(node)){
-                                openNodes.Add(node);
+                                stillOpenNodes = true;
                             }
                         }   
                     }
@@ -147,17 +126,20 @@ public class PathfindingGrid : MonoBehaviour
                                 // Remove node in between
                                 nodes[i].walkable = true;
                                 nodes[i].updateNodeObject();
-                                print("yes");
                             }   
                         }
                     }
                 }
 
-                openNodes.Remove(node);
                 current = node;
+                
+                if (mazeAnimations){
+                    yield return new WaitForEndOfFrame();
+                }
             }
             // Backtrack and find old nodes
             else {
+                bool foundNode = false;
                 // Find neighbour nodes of old closed nodes
                 for (int i = closedNodes.Count -1; i >= 0; i--){
                     for (int j = 0; j < nodes.Length; j++){
@@ -170,9 +152,11 @@ public class PathfindingGrid : MonoBehaviour
                                 // Do not include diagonal nodes
                                 if (node.gridCoords.x == closedNodes[i].gridCoords.x || node.gridCoords.y == closedNodes[i].gridCoords.y){
                                     // Do not add already added nodes
-                                        if (!closedNodes.Contains(node)){
-                                            current = closedNodes[i];
-                                        }
+                                    if (!closedNodes.Contains(node)){
+                                        current = closedNodes[i];
+                                        foundNode = true;
+                                        continue;
+                                    }   
                                 }
                             }   
                             
@@ -180,9 +164,9 @@ public class PathfindingGrid : MonoBehaviour
                     }
 
                 }
+                stillOpenNodes = foundNode;
             }
             
-            yield return new WaitForEndOfFrame();
         }
 
 

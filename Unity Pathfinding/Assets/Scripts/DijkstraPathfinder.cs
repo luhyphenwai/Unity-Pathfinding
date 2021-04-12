@@ -90,7 +90,9 @@ public class DijkstraPathfinder : MonoBehaviour
                     neighbour.nodeObject.GetComponent<SpriteRenderer>().color = Color.blue;
                 }
             } 
-            yield return new WaitForSeconds(speed);
+            if (speed > 0){
+                yield return new WaitForSeconds(speed);
+            }
         }
 
         // Retrace path back

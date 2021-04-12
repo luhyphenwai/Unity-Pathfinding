@@ -88,7 +88,9 @@ public class GreedyBFSPathfinder : MonoBehaviour
                     }
                 }
             } 
-            yield return new WaitForSeconds(speed);
+            if (speed > 0){
+                yield return new WaitForSeconds(speed);
+            }
         }
 
         // Retrace path back

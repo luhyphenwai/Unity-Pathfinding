@@ -12,6 +12,7 @@ public class PathfinderInterface : MonoBehaviour
     public PathfindingGrid grid;
     public AStarPathfinder aStar;
     public DijkstraPathfinder dpath;
+    public GreedyBFSPathfinder gpath;
     public GameObject targetNode;
     public GameObject pathfinderObject;
 
@@ -102,6 +103,15 @@ public class PathfinderInterface : MonoBehaviour
         
         StartCoroutine
             (dpath.FindPath(grid.WorldPointToNode(pathfinderObject.transform.position), 
+                            grid.WorldPointToNode(targetNode.transform.position), s.value));
+    }
+
+    [ContextMenu("Dijkstra Pathfinding")]
+    public void StartGreedyPathfinder(){
+        StopAllCoroutines(); 
+        
+        StartCoroutine
+            (gpath.FindPath(grid.WorldPointToNode(pathfinderObject.transform.position), 
                             grid.WorldPointToNode(targetNode.transform.position), s.value));
     }
     public void GenerateMaze(){

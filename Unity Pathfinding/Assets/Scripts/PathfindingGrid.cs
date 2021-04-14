@@ -98,7 +98,6 @@ public class PathfindingGrid : MonoBehaviour
                 if (Mathf.Abs(current.gridCoords.x - node.gridCoords.x) <= 2 && Mathf.Abs(current.gridCoords.y - node.gridCoords.y) <= 2){
                     // Keep 2 node distance 
                     if (Vector2.Distance(current.gridCoords, node.gridCoords) > 1){
-
                         // Do not include diagonal nodes
                         if (node.gridCoords.x == current.gridCoords.x || node.gridCoords.y == current.gridCoords.y){
                             // Do not add already added nodes
@@ -111,7 +110,10 @@ public class PathfindingGrid : MonoBehaviour
                     
                 }
             }
-
+            
+        
+            
+            
             // If there are avaliable neighbour nodes
             if (neighbourNodes.Count > 0 ){
                 // Pick random node
@@ -128,16 +130,20 @@ public class PathfindingGrid : MonoBehaviour
                                 // Remove node in between
                                 nodes[i].walkable = true;
                                 nodes[i].updateNodeObject();
+                                nodes[i].nodeObject.GetComponent<Animator>().SetTrigger("Created");
                             }   
                         }
                     }
                 }
 
-                current = node;
-                
                 if (mazeAnimations){
                     yield return new WaitForEndOfFrame();
                 }
+                
+                current.nodeObject.GetComponent<Animator>().SetTrigger("Created");
+
+                current = node;
+                
             }
             // Backtrack and find old nodes
             else {

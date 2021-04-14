@@ -56,13 +56,22 @@ public class PathfinderInterface : MonoBehaviour
         if (Input.GetMouseButton(0) && mousePosition.x > -5.15f){
             switch(currentMode){
                 case EditingMode.Walls:
-                    grid.WorldPointToNode(mousePosition).walkable = false;
-                    grid.WorldPointToNode(mousePosition).updateNodeObject();
+                    if (grid.WorldPointToNode(mousePosition).walkable){
+                        grid.WorldPointToNode(mousePosition).walkable = false;
+                        grid.WorldPointToNode(mousePosition).nodeObject.GetComponent<Animator>().SetTrigger("Selected");
+                        grid.WorldPointToNode(mousePosition).updateNodeObject();
+                    }
                     break;
                 case EditingMode.TargetPosition:
+                    if ((Vector2)targetNode.transform.position != grid.WorldPointToNode(mousePosition).position){
+                        targetNode.transform.GetChild(0).GetComponent<Animator>().SetTrigger("Selected");
+                    }
                     targetNode.transform.position = grid.WorldPointToNode(mousePosition).position;
                     break;
                 case EditingMode.PathfinderObject:
+                    if ((Vector2)pathfinderObject.transform.position != grid.WorldPointToNode(mousePosition).position){
+                        pathfinderObject.transform.GetChild(0).GetComponent<Animator>().SetTrigger("Selected");
+                    }
                     pathfinderObject.transform.position = grid.WorldPointToNode(mousePosition).position;
                     break;
                     
@@ -71,8 +80,11 @@ public class PathfinderInterface : MonoBehaviour
 
         if (Input.GetMouseButton(1) && mousePosition.x > -5.15f){
             if (currentMode == EditingMode.Walls){
+            if (!grid.WorldPointToNode(mousePosition).walkable){
                 grid.WorldPointToNode(mousePosition).walkable = true;
+                grid.WorldPointToNode(mousePosition).nodeObject.GetComponent<Animator>().SetTrigger("Selected");
                 grid.WorldPointToNode(mousePosition).updateNodeObject();
+            }
             }
         }
     }

@@ -47,6 +47,7 @@ public class GreedyBFSPathfinder : MonoBehaviour
             openNodes.Remove(current);
             closedNodes.Add(current);
             current.nodeObject.GetComponent<SpriteRenderer>().color = Color.yellow;
+            current.nodeObject.GetComponent<Animator>().SetTrigger("Selected");
 
             // Check for target node
             if (current == targetNode){
@@ -85,6 +86,7 @@ public class GreedyBFSPathfinder : MonoBehaviour
                     if (!openNodes.Contains(neighbour)){
                         openNodes.Add(neighbour);
                         neighbour.nodeObject.GetComponent<SpriteRenderer>().color = Color.blue;
+                        neighbour.nodeObject.GetComponent<Animator>().SetTrigger("Selected");
                     }
                 }
             } 
@@ -97,7 +99,6 @@ public class GreedyBFSPathfinder : MonoBehaviour
         List<Node> path = new List<Node>();
         while (current != startingNode){
             path.Add(current);
-            current.nodeObject.GetComponent<SpriteRenderer>().color = Color.red;
             current = current.parent;
         }
 
@@ -111,6 +112,12 @@ public class GreedyBFSPathfinder : MonoBehaviour
         // Return completed path
         path.Reverse();
         finalPath = path.ToArray();
+
+        for(int i = 0; i < path.Count; i++){
+            path[i].nodeObject.GetComponent<SpriteRenderer>().color = Color.red;
+            path[i].nodeObject.GetComponent<Animator>().SetTrigger("Selected");
+            yield return new WaitForSeconds(0.05f);
+        }
         
     }
 

@@ -56,10 +56,12 @@ public class PathfindingGrid : MonoBehaviour
                 Node node = new Node(walkable, position);
                 node.SetGridCoords(new Vector2(x,y));
                 if (Application.isPlaying){
-                    node.nodeObject = Instantiate(nodeObject, position, Quaternion.identity);
-                    node.nodeObject.transform.localScale = new Vector2(nodeSize, nodeSize);
-                    node.nodeObject.transform.parent = transform;
-                    nodeObjects.Add(node.nodeObject);
+                    nodeObject = Instantiate(nodeObject, position, Quaternion.identity);
+                    nodeObject.transform.localScale = new Vector2(nodeSize, nodeSize);
+                    nodeObject.transform.parent = transform;
+                    node.nodeObject = nodeObject.transform.GetChild(0).gameObject;
+                    node.nodeObject.gameObject.GetComponent<Animator>().enabled = true;
+                    nodeObjects.Add(nodeObject);
                     node.updateNodeObject();
                 }
                 nodeList.Add(node);
@@ -168,6 +170,7 @@ public class PathfindingGrid : MonoBehaviour
             }
             
         }
+        WorldPointToNode(pi.targetNode.transform.position).walkable = true;
 
 
     }

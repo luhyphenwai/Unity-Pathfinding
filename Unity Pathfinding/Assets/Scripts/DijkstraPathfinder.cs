@@ -118,7 +118,7 @@ public class DijkstraPathfinder : MonoBehaviour
         for(int i = 0; i < path.Count; i++){
             path[i].nodeObject.GetComponent<SpriteRenderer>().color = Color.red;
             path[i].nodeObject.GetComponent<Animator>().SetTrigger("Selected");
-            yield return new WaitForSeconds(.05f);
+            yield return new WaitForSeconds(0.01f);
         }
     }
 }

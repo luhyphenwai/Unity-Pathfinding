@@ -61,18 +61,25 @@ public class PathfinderInterface : MonoBehaviour
                         grid.WorldPointToNode(mousePosition).nodeObject.GetComponent<Animator>().SetTrigger("Selected");
                         grid.WorldPointToNode(mousePosition).updateNodeObject();
                     }
+                                
+                    StopAllCoroutines();
+                    grid.StopAllCoroutines();
                     break;
                 case EditingMode.TargetPosition:
                     if ((Vector2)targetNode.transform.position != grid.WorldPointToNode(mousePosition).position){
                         targetNode.transform.GetChild(0).GetComponent<Animator>().SetTrigger("Selected");
                     }
                     targetNode.transform.position = grid.WorldPointToNode(mousePosition).position;
+                    StopAllCoroutines();
+                    grid.StopAllCoroutines();
                     break;
                 case EditingMode.PathfinderObject:
                     if ((Vector2)pathfinderObject.transform.position != grid.WorldPointToNode(mousePosition).position){
                         pathfinderObject.transform.GetChild(0).GetComponent<Animator>().SetTrigger("Selected");
                     }
                     pathfinderObject.transform.position = grid.WorldPointToNode(mousePosition).position;
+                    StopAllCoroutines();
+                    grid.StopAllCoroutines();
                     break;
                     
             }
@@ -80,11 +87,13 @@ public class PathfinderInterface : MonoBehaviour
 
         if (Input.GetMouseButton(1) && mousePosition.x > -5.15f){
             if (currentMode == EditingMode.Walls){
-            if (!grid.WorldPointToNode(mousePosition).walkable){
-                grid.WorldPointToNode(mousePosition).walkable = true;
-                grid.WorldPointToNode(mousePosition).nodeObject.GetComponent<Animator>().SetTrigger("Selected");
-                grid.WorldPointToNode(mousePosition).updateNodeObject();
-            }
+                if (!grid.WorldPointToNode(mousePosition).walkable){
+                    grid.WorldPointToNode(mousePosition).walkable = true;
+                    grid.WorldPointToNode(mousePosition).nodeObject.GetComponent<Animator>().SetTrigger("Selected");
+                    grid.WorldPointToNode(mousePosition).updateNodeObject();
+                }
+                StopAllCoroutines();
+                grid.StopAllCoroutines();
             }
         }
     }
@@ -93,6 +102,7 @@ public class PathfinderInterface : MonoBehaviour
 
     public void ResetGrid(){
         StopAllCoroutines();
+        grid.StopAllCoroutines();
         for (int i = 0; i < grid.nodes.Length; i++){
             grid.nodes[i].walkable = true;
             grid.nodes[i].updateNodeObject();
@@ -101,7 +111,8 @@ public class PathfinderInterface : MonoBehaviour
 
     [ContextMenu("A Star Pathfinding")]
     public void StartAStarPathfinder(){
-        StopAllCoroutines(); 
+        StopAllCoroutines();
+        grid.StopAllCoroutines();
         
         
         StartCoroutine
@@ -111,7 +122,8 @@ public class PathfinderInterface : MonoBehaviour
 
     [ContextMenu("Dijkstra Pathfinding")]
     public void StartDijkstraPathfinder(){
-        StopAllCoroutines(); 
+        StopAllCoroutines();
+        grid.StopAllCoroutines();
         
         StartCoroutine
             (dpath.FindPath(grid.WorldPointToNode(pathfinderObject.transform.position), 
@@ -120,7 +132,8 @@ public class PathfinderInterface : MonoBehaviour
 
     [ContextMenu("Dijkstra Pathfinding")]
     public void StartGreedyPathfinder(){
-        StopAllCoroutines(); 
+        StopAllCoroutines();
+        grid.StopAllCoroutines();
         
         StartCoroutine
             (gpath.FindPath(grid.WorldPointToNode(pathfinderObject.transform.position), 

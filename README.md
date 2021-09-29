@@ -1,2 +1,2 @@
 # Unity-Pathfinding
-Pathfinding algorithms implemented in the Unity game engine
+Pathfinding algorithm visualizer implemented in the Unity game engine
